@@ -1,7 +1,7 @@
 const authService = require('../services/authService');
 const { sendError } = require('../utils/http');
 
-function authMiddleware(req, res, next) {
+async function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization || '';
   const [scheme, token] = authHeader.split(' ');
 
@@ -9,7 +9,7 @@ function authMiddleware(req, res, next) {
     return sendError(res, 401, 'MISSING_ACCESS_TOKEN', 'Bearer token is required.');
   }
 
-  const result = authService.getUserFromAccessToken(token);
+  const result = await authService.getUserFromAccessToken(token);
   if (!result.ok) {
     return sendError(res, result.status, result.code, result.message, result.details);
   }

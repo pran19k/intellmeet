@@ -1,60 +1,49 @@
 # Execution Status - IntelliMeet
 
 **Started on:** May 12, 2026
-**Current Phase:** Phase 0/1 (Planning Validation + Foundation Setup)
+**Current Phase:** Phase 1/2 bridge (foundation complete, MVP meeting flow in progress)
 
-## Completed Today
+## Completed
 
-- Created monorepo scaffolding directories:
-  - `apps/web/src`
-  - `apps/api/src`
-  - `apps/socket/src`
-  - `apps/worker/src`
-  - `packages/shared/src`
-- Created API v1 contract draft.
-- Created Socket events contract draft.
-- Created Sprint 1 kickoff checklist.
-- Added root workspace files: `package.json`, `.env.example`.
-- Added runnable service placeholders:
-  - `apps/api/src/server.js`
-  - `apps/socket/src/server.js`
-  - `apps/worker/src/worker.js`
-- Verified health endpoints:
-  - API: `GET /health` -> `{ "status": "ok", "service": "api" }`
-  - Socket: `GET /health` -> `{ "status": "ok", "service": "socket" }`
-- Implemented Auth vertical slice with modular structure:
-  - config, utils, repository, service, controllers, middleware, routes
-- Replaced API placeholders with functional endpoints:
+- Monorepo scaffold exists for `apps/web`, `apps/api`, `apps/socket`, `apps/worker`, and `packages/shared`.
+- API auth vertical slice is implemented and working:
   - `POST /api/auth/signup`
   - `POST /api/auth/login`
   - `POST /api/auth/refresh`
-  - `GET /api/users/me` (Bearer auth)
-- Added workspace app manifests and scripts for `@intellimeet/api`, `@intellimeet/web`, `@intellimeet/socket`, and `@intellimeet/worker`.
-- Initialized React + Vite web shell with route stubs:
-  - `/login`, `/signup`, `/dashboard`
-- Installed dependencies and verified runtime:
-  - API running on `http://localhost:4000`
-  - Web running on `http://localhost:5173`
-- Added local setup and run instructions in `documents/local-run-guide.md`.
+  - `GET /api/users/me`
+- Meetings API is implemented and validated:
+  - `POST /api/meetings`
+  - `GET /api/meetings`
+  - `GET /api/meetings/:id`
+  - request validation for meeting payloads
+- MongoDB persistence is wired in with dual-mode repositories:
+  - users
+  - meetings
+  - refresh tokens
+- Refresh tokens are persisted in MongoDB and auto-expire via TTL index.
+- Web login/signup forms are wired to the live API.
+- Socket service now boots with `meeting:join` and `meeting:leave` handlers.
+- Smoke tests completed successfully, including refresh-token flow and persistence checks.
+- Root `.env` is local only, and web env values now live in `apps/web/.env` when needed.
+- `.gitignore` excludes env files, temp JSON artifacts, and common build outputs.
 
-## In Progress
+## Current State
 
-- Begin meeting endpoints (`POST /meetings`, `GET /meetings`) using same layered pattern.
+- API runs on port `4000` when `MONGODB_URI=mongodb://localhost:27017` is set.
+- Web dev server starts successfully on `http://localhost:5173`.
+- Socket service starts on port `4001` and falls back cleanly if `socket.io` is not installed yet.
+- Debug logging was removed from the meetings flow and responses were restored to the normal success shape.
 
-## Blockers
+## Remaining Work
 
-- None.
+1. Add socket authentication on connection and room-join checks.
+2. Add Redis adapter for Socket.io scaling.
+3. Continue with MVP meeting-room UI and presence updates.
+4. Start WebRTC signaling and in-meeting chat flow.
+5. Add CI/test coverage for the newly working API slices.
 
-## Next 48 Hours
+## Notes for the Next Chat
 
-1. Implement meeting route/controller/service stubs with validation.
-2. Add persistent storage integration (replace in-memory auth repository with MongoDB model).
-3. Add auth-related unit tests and API integration smoke tests.
-4. Wire login/signup forms in web shell to API.
-5. Add Socket.io real-time bootstrap and `meeting:join` / `meeting:leave` handlers.
-
-## Definition of Done for Week 1
-
-- Contracts reviewed.
-- Monorepo scaffold confirmed.
-- Auth tasks ready and development started.
+- The key implementation already exists; do not restart from planning.
+- The safest next step is to finish Socket.io auth and presence, then wire the meeting UI to those events.
+- Use the Mongo URI above if you need to run the API locally.

@@ -6,9 +6,9 @@ const {
 } = require('../config/env');
 const { createUser, findByEmail, findById } = require('../repositories/userRepository');
 const { signToken, verifyToken } = require('../utils/jwt');
+const { saveToken, findToken, deleteToken } = require('../repositories/refreshTokenRepository');
 const { hashPassword, verifyPassword } = require('../utils/password');
 
-const refreshTokenStore = new Map();
 
 function validateAuthPayload(payload, type) {
   const errors = [];
@@ -43,22 +43,32 @@ function buildTokens(userId, email, role) {
     REFRESH_TOKEN_EXPIRES_IN_SECONDS
   );
 
-  refreshTokenStore.set(refreshToken, userId);
+  // persist refresh token
+  try {
+    const expiresAt = REFRESH_TOKEN_EXPIRES_IN_SECONDS ? new Date(Date.now() + REFRESH_TOKEN_EXPIRES_IN_SECONDS * 1000) : null;
+    // do not await here to keep token creation fast; save in background
+    saveToken(refreshToken, userId, expiresAt).catch((e) => console.error('saveToken error', e && e.message));
+  } catch (e) {
+    // ignore persistence errors for now
+    // eslint-disable-next-line no-console
+    console.error('Failed to persist refresh token', e && e.message);
+  }
+
   return { accessToken, refreshToken };
 }
 
-function signup(payload) {
+async function signup(payload) {
   const errors = validateAuthPayload(payload, 'signup');
   if (errors.length > 0) {
     return { ok: false, status: 400, code: 'VALIDATION_ERROR', message: 'Invalid request payload.', details: errors };
   }
 
-  const existingUser = findByEmail(payload.email);
+  const existingUser = await findByEmail(payload.email);
   if (existingUser) {
     return { ok: false, status: 409, code: 'EMAIL_EXISTS', message: 'Email already registered.', details: [] };
   }
 
-  const user = createUser({
+  const user = await createUser({
     name: payload.name.trim(),
     email: payload.email,
     passwordHash: hashPassword(payload.password),
@@ -75,13 +85,12 @@ function signup(payload) {
   };
 }
 
-function login(payload) {
+async function login(payload) {
   const errors = validateAuthPayload(payload, 'login');
   if (errors.length > 0) {
     return { ok: false, status: 400, code: 'VALIDATION_ERROR', message: 'Invalid request payload.', details: errors };
   }
-
-  const user = findByEmail(payload.email);
+  const user = await findByEmail(payload.email);
   if (!user || !verifyPassword(payload.password, user.passwordHash)) {
     return { ok: false, status: 401, code: 'INVALID_CREDENTIALS', message: 'Invalid email or password.', details: [] };
   }
@@ -97,12 +106,14 @@ function login(payload) {
   };
 }
 
-function refresh(refreshToken) {
+async function refresh(refreshToken) {
   if (!refreshToken) {
     return { ok: false, status: 401, code: 'MISSING_REFRESH_TOKEN', message: 'Refresh token is required.', details: [] };
   }
 
-  if (!refreshTokenStore.has(refreshToken)) {
+  // check persisted token
+  const persisted = await findToken(refreshToken);
+  if (!persisted) {
     return { ok: false, status: 401, code: 'INVALID_REFRESH_TOKEN', message: 'Refresh token is invalid.', details: [] };
   }
 
@@ -110,16 +121,17 @@ function refresh(refreshToken) {
   try {
     payload = verifyToken(refreshToken, REFRESH_TOKEN_SECRET);
   } catch (error) {
-    refreshTokenStore.delete(refreshToken);
+    // remove persisted token
+    await deleteToken(refreshToken).catch(() => {});
     return { ok: false, status: 401, code: 'INVALID_REFRESH_TOKEN', message: error.message, details: [] };
   }
 
-  const user = findById(payload.sub);
+  const user = await findById(payload.sub);
   if (!user) {
     return { ok: false, status: 401, code: 'USER_NOT_FOUND', message: 'User not found.', details: [] };
   }
 
-  refreshTokenStore.delete(refreshToken);
+  await deleteToken(refreshToken).catch(() => {});
   const tokens = buildTokens(user.id, user.email, user.role);
 
   return {
@@ -132,7 +144,7 @@ function refresh(refreshToken) {
   };
 }
 
-function getUserFromAccessToken(accessToken) {
+async function getUserFromAccessToken(accessToken) {
   if (!accessToken) {
     return { ok: false, status: 401, code: 'MISSING_ACCESS_TOKEN', message: 'Access token is required.', details: [] };
   }
@@ -144,7 +156,7 @@ function getUserFromAccessToken(accessToken) {
     return { ok: false, status: 401, code: 'INVALID_ACCESS_TOKEN', message: error.message, details: [] };
   }
 
-  const user = findById(payload.sub);
+  const user = await findById(payload.sub);
   if (!user) {
     return { ok: false, status: 401, code: 'USER_NOT_FOUND', message: 'User not found.', details: [] };
   }
