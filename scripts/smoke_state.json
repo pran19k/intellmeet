@@ -2,21 +2,21 @@
   "email": "persist_test@example.com",
   "password": "PersistPass123!",
   "meeting": {
-    "id": "6a1401bc05117d6fe972c213",
+    "id": "6a142780812f580f70e08e9f",
     "title": "Persisted Meeting",
     "description": "",
     "host": {
       "id": "6a1401bc05117d6fe972c210",
       "name": "Persist Tester"
     },
-    "scheduledAt": "2026-05-25T09:01:00.169Z",
+    "scheduledAt": "2026-05-25T11:42:08.720Z",
     "duration": 45,
     "status": "scheduled",
     "settings": {},
     "participants": [],
     "aiSummary": null,
     "recordings": [],
-    "createdAt": "2026-05-25T08:01:00.183Z",
-    "updatedAt": "2026-05-25T08:01:00.183Z"
+    "createdAt": "2026-05-25T10:42:08.725Z",
+    "updatedAt": "2026-05-25T10:42:08.725Z"
   }
 }

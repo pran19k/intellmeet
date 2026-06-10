@@ -8,10 +8,15 @@
     "packages/*"
   ],
   "scripts": {
+    "dev": "node scripts/dev.js",
     "dev:api": "npm run dev -w @intellimeet/api",
     "dev:web": "npm run dev -w @intellimeet/web",
     "dev:socket": "node apps/socket/src/server.js",
     "dev:worker": "node apps/worker/src/worker.js",
-    "check": "echo \"Add lint/test tooling in next step\""
+    "smoke:api": "node scripts/test_refresh.js && node scripts/smoke_test.js && node scripts/smoke_persist.js && node scripts/smoke_check_persist.js",
+    "smoke:socket": "node scripts/smoke_socket_presence.js",
+    "smoke:messages": "node scripts/test_messages_api.js",
+    "test:socket": "node scripts/test_socket_integration.js",
+    "check": "node scripts/check.js"
   }
 }

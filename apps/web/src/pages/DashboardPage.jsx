@@ -1,38 +1,77 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE, tokenStore } from '../api/auth';
 
 export default function DashboardPage() {
   const [user, setUser] = useState(null);
+  const [meetingId, setMeetingId] = useState('');
+  const [joinError, setJoinError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
+    const token = tokenStore.getAccess();
     if (!token) return navigate('/login');
 
-    fetch('http://localhost:4000/api/users/me', { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API_BASE}/api/users/me`, { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json())
       .then((data) => setUser(data.user || null))
       .catch(() => setUser(null));
   }, [navigate]);
 
   function handleLogout() {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    tokenStore.clear();
     navigate('/login');
   }
 
+  function handleJoinMeeting(e) {
+    e.preventDefault();
+    setJoinError(null);
+
+    const trimmed = meetingId.trim();
+    if (!trimmed) {
+      setJoinError('Enter a meeting ID to continue.');
+      return;
+    }
+
+    navigate(`/meeting/${trimmed}`);
+  }
+
   return (
-    <section className="card">
-      <h2>Dashboard</h2>
-      {user ? (
+    <section className="dashboard-shell">
+      <div className="card dashboard-banner">
         <div>
-          <p>Signed in as <strong>{user.name}</strong> ({user.email})</p>
-          <button onClick={handleLogout}>Sign out</button>
+          <p className="eyebrow">Workspace</p>
+          <h2>Dashboard</h2>
+          {user ? (
+            <p className="muted">
+              Signed in as <strong>{user.name}</strong> ({user.email})
+            </p>
+          ) : (
+            <p className="muted">Loading profile...</p>
+          )}
         </div>
-      ) : (
-        <p>Loading profile...</p>
-      )}
-      <p>This placeholder will host meetings, analytics widgets, and quick actions.</p>
+        <button onClick={handleLogout}>Sign out</button>
+      </div>
+
+      <div className="dashboard-grid">
+        <section className="card">
+          <h3>Join a meeting</h3>
+          <form onSubmit={handleJoinMeeting} className="stacked-form">
+            <label>
+              Meeting ID
+              <input value={meetingId} onChange={(e) => setMeetingId(e.target.value)} placeholder="e.g. 64f..." />
+            </label>
+            <button type="submit">Open room</button>
+          </form>
+          {joinError && <p className="error-text">{joinError}</p>}
+        </section>
+
+        <section className="card">
+          <h3>Live presence</h3>
+          <p className="muted">The meeting room now subscribes to socket presence updates and room membership checks.</p>
+          <p className="muted">Once you open a room, the participant list and connection state update from the socket events.</p>
+        </section>
+      </div>
     </section>
   );
 }

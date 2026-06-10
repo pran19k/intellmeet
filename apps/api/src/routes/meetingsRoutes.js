@@ -8,5 +8,7 @@ const router = express.Router();
 router.post('/', authMiddleware, validateCreateMeeting, meetingsController.create);
 router.get('/', authMiddleware, meetingsController.list);
 router.get('/:id', authMiddleware, meetingsController.getById);
+router.get('/:id/messages', authMiddleware, require('../controllers/chatController').listByMeeting);
+router.post('/:id/messages', authMiddleware, require('../controllers/chatController').createMessage);
 
 module.exports = router;

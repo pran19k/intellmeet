@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    services:
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping || exit 1"
+          --health-interval 5s
+          --health-timeout 2s
+          --health-retries 5
+
+    env:
+      JWT_SECRET: ci-jwt-secret
+      JWT_REFRESH_SECRET: ci-refresh-secret
+      API_PORT: 4000
+      SOCKET_PORT: 4001
+      SOCKET_CORS_ORIGIN: http://127.0.0.1:5173
+      VITE_API_BASE: http://127.0.0.1:4000
+      REDIS_URL: redis://redis:6379
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Wait for Redis
+        run: |
+          echo 'Waiting for Redis to accept TCP connections...'
+          python - <<'PY'
+import socket, time, sys
+host='redis'
+port=6379
+for i in range(30):
+    try:
+        s=socket.create_connection((host,port),timeout=1)
+        s.close()
+        print('Redis reachable')
+        sys.exit(0)
+    except Exception:
+        time.sleep(1)
+print('Timed out waiting for redis')
+sys.exit(1)
+PY
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web app
+        run: npm run build -w @intellimeet/web
+
+      - name: Start API
+        run: npm run dev:api > /tmp/intellimeet-api.log 2>&1 & echo $! > /tmp/intellimeet-api.pid
+
+      - name: Start socket service
+        run: npm run dev:socket > /tmp/intellimeet-socket.log 2>&1 & echo $! > /tmp/intellimeet-socket.pid
+
+      - name: Wait for API
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4000/health; then
+              exit 0
+            fi
+            sleep 1
+          done
+          exit 1
+
+      - name: Wait for socket service
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4001/health; then
+              exit 0
+            fi
+            sleep 1
+          done
+          exit 1
+
+      - name: Run quality gate
+        run: npm run check
+
+      - name: Stop API
+        if: always()
+        run: |
+          if [ -f /tmp/intellimeet-api.pid ]; then
+            kill "$(cat /tmp/intellimeet-api.pid)" || true
+          fi
+
+      - name: Stop socket service
+        if: always()
+        run: |
+          if [ -f /tmp/intellimeet-socket.pid ]; then
+            kill "$(cat /tmp/intellimeet-socket.pid)" || true
+          fi

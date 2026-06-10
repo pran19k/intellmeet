@@ -65,3 +65,39 @@ This project helped us gain practical experience in:
  * Nishanthini
  * Muthupetchi
  
+
+ ## Setup
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the API and socket services together:
+
+```bash
+npm run dev
+```
+
+Or start them in separate terminals:
+
+```bash
+npm run dev:api
+npm run dev:socket
+```
+
+Run the smoke checks:
+
+```bash
+npm run smoke:api
+npm run smoke:socket
+npm run smoke:messages
+```
+
+Optional local services:
+
+```bash
+docker compose up -d mongo redis
+```
+

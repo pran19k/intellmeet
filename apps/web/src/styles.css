@@ -1,7 +1,10 @@
 :root {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #1e293b;
-  background: linear-gradient(135deg, #e2e8f0 0%, #f8fafc 50%, #dbeafe 100%);
+  color: #0f172a;
+  background:
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.18), transparent 34%),
+    radial-gradient(circle at top right, rgba(20, 184, 166, 0.16), transparent 28%),
+    linear-gradient(135deg, #f8fafc 0%, #eef2ff 48%, #e0f2fe 100%);
 }
 
 * {
@@ -11,23 +14,26 @@
 body {
   margin: 0;
   min-height: 100vh;
+  color: #0f172a;
 }
 
 .shell {
-  max-width: 980px;
+  max-width: 1120px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 28px 20px 40px;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  gap: 16px;
 }
 
 .header h1 {
   margin: 0;
+  letter-spacing: -0.03em;
 }
 
 nav {
@@ -37,14 +43,16 @@ nav {
 
 nav a {
   text-decoration: none;
-  color: #0f172a;
-  padding: 8px 10px;
-  border-radius: 8px;
+  color: #1e293b;
+  padding: 9px 12px;
+  border-radius: 999px;
+  transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
 }
 
 nav a.active,
 nav a:hover {
-  background-color: #bfdbfe;
+  background-color: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
 }
 
 .content {
@@ -53,9 +61,260 @@ nav a:hover {
 }
 
 .card {
-  background: #ffffffcc;
-  border: 1px solid #cbd5e1;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  color: #2563eb;
+}
+
+.muted {
+  color: #475569;
+}
+
+.button,
+button {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #2563eb, #0f766e);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover,
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.button.secondary {
+  background: rgba(15, 23, 42, 0.08);
+  color: #0f172a;
+}
+
+input {
+  width: 100%;
+  margin-top: 6px;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.86);
+  color: #0f172a;
+}
+
+input:focus {
+  outline: 2px solid rgba(37, 99, 235, 0.28);
+  border-color: rgba(37, 99, 235, 0.55);
+}
+
+.stacked-form {
+  display: grid;
+  gap: 14px;
+}
+
+.error-text,
+.notice.error {
+  color: #b91c1c;
+}
+
+.dashboard-shell,
+.meeting-room {
+  display: grid;
+  gap: 18px;
+}
+
+.dashboard-banner,
+.meeting-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+}
+
+.dashboard-grid,
+.meeting-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.meeting-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.status-pill.connected {
+  background: rgba(16, 185, 129, 0.16);
+  color: #047857;
+}
+
+.status-pill.connecting {
+  background: rgba(59, 130, 246, 0.16);
+  color: #1d4ed8;
+}
+
+.status-pill.error {
+  background: rgba(239, 68, 68, 0.14);
+  color: #b91c1c;
+}
+
+.metric-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.metric-label {
+  display: block;
+  color: #64748b;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+
+.participant-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.participant-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
   border-radius: 14px;
-  padding: 18px;
-  backdrop-filter: blur(2px);
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.participant-list small {
+  margin-left: auto;
+  color: #64748b;
+}
+
+.participant-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #22c55e, #14b8a6);
+  flex: 0 0 auto;
+}
+
+.meeting-panel h3,
+.card h3 {
+  margin-top: 0;
+}
+
+.panel-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.chat-panel,
+.signal-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.chat-log,
+.signal-log {
+  display: grid;
+  gap: 10px;
+  max-height: 320px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.chat-message,
+.signal-entry {
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.04);
+  padding: 12px 14px;
+}
+
+.chat-message-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: #64748b;
+  font-size: 0.86rem;
+  margin-bottom: 6px;
+}
+
+.chat-message p,
+.signal-entry span {
+  margin: 0;
+}
+
+.chat-form {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.chat-form input {
+  margin-top: 0;
+}
+
+.typing-indicator {
+  margin: 6px 0 0;
+  color: #2563eb;
+  font-size: 0.92rem;
+}
+
+.signal-entry {
+  display: grid;
+  gap: 4px;
+}
+
+.signal-entry small {
+  color: #64748b;
+}
+
+@media (max-width: 720px) {
+  .header,
+  .dashboard-banner,
+  .meeting-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .metric-row {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-heading-row,
+  .chat-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }

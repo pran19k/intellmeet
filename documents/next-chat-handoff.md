@@ -19,10 +19,13 @@ Use this file as the starting point for a new chat so we do not repeat already c
 - Refresh tokens are stored in MongoDB and expire via TTL index.
 - Web login/signup forms are connected to the API.
 - Socket service exists and handles `meeting:join` and `meeting:leave`.
+- Socket auth, presence, room state, chat, and signaling are implemented.
+- Chat messages persist to MongoDB and can be fetched through the meeting messages API.
 - Smoke tests passed for auth, refresh, and persistence.
 - Root `.env` is local only and is no longer tracked by git.
 - Web config now requires `apps/web/.env` with `VITE_API_BASE`.
 - Temporary root files were removed and `.gitignore` now filters env, temp, and build noise.
+- A combined root `npm run dev` launcher starts API and socket together.
 
 ## Important Runtime Details
 
@@ -39,13 +42,14 @@ Use this file as the starting point for a new chat so we do not repeat already c
 
 ## Recommended Next Step
 
-Finish the real-time layer by adding Socket.io auth on connect and presence/room checks, then wire the meeting UI to those events.
+Replace the placeholder root `check` script with a real quality gate, then wire it into CI so syntax and smoke coverage stay aligned.
 
 ## Recent Verification
 
 - `node scripts/test_refresh.js` passed.
-- Web dev server started successfully with `npm run dev:web`.
+- `npm run smoke:messages` passed.
+- `npm run dev` started API and socket together successfully.
 
 ## Short Prompt for a New Chat
 
-Continue from the current IntelliMeet implementation. Auth, meetings, Mongo persistence, refresh-token storage, env loading, `.gitignore`, and basic Socket.io handlers already exist. Next, implement Socket.io connection auth and presence checks, then connect the meeting UI to those events. Do not redo the completed backend foundation or recreate already cleaned files.
+Continue from the current IntelliMeet implementation. Auth, meetings, Mongo persistence, refresh-token storage, env loading, `.gitignore`, Socket.io auth/presence/chat/signaling, and the combined dev launcher already exist. Next, replace the placeholder root `check` script with a real quality gate and keep CI aligned with it. Do not redo the completed backend foundation or recreate already cleaned files.
