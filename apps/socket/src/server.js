@@ -173,18 +173,8 @@ function readAuthToken(socket) {
   return scheme === 'Bearer' ? token : null;
 }
 
-const server = http.createServer((req, res) => {
-  if (req.method === 'GET' && req.url === '/health') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'ok', service: 'socket' }));
-    return;
-  }
-
-  res.writeHead(404, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify({ error: { code: 'NOT_FOUND', message: 'Route not found' } }));
-});
-
-let io;
+function attachSockets(server) {
+  let io;
 try {
   // Lazy require so the service can still run without socket.io installed
   // (useful during initial dev where dependencies might not be installed)
@@ -563,9 +553,7 @@ try {
     // eslint-disable-next-line no-console
     console.warn('socket.io is not installed; socket endpoints disabled', _e && _e.message);
   }
+  return io;
+}
 
-server.listen(PORT, () => {
-  console.log(`Socket service listening on port ${PORT}`);
-  if (io) console.log('Socket.io enabled');
-  if (redisAdapterEnabled) console.log('Redis adapter enabled');
-});
+module.exports = { attachSockets };
