@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "npm exec --workspace @intellimeet/web vite build",
+  "buildCommand": "cd apps/web && node ../../node_modules/vite/bin/vite.js build",
   "outputDirectory": "apps/web/dist",
   "framework": "vite"
 }
