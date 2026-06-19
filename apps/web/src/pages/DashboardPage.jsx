@@ -10,7 +10,10 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const token = tokenStore.getAccess();
-    if (!token) return navigate('/login');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
     fetch(`${API_BASE}/api/users/me`, {
       headers: { Authorization: `Bearer ${token}` }
     })
